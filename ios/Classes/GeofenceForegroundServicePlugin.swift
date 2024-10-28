@@ -80,7 +80,18 @@ public class GeofenceForegroundServicePlugin: NSObject, FlutterPlugin {
 
 //            addGeoFences(zonesList, result)
         case "removeGeofence":
-            result("iOS " + UIDevice.current.systemVersion)
+            // result("iOS " + UIDevice.current.systemVersion)
+            if let arguments = call.arguments as? [String: Any],
+                let zoneId = arguments[Constants.zoneId] as? String {
+                    for region in locationManager.monitoredRegions {
+                        if let circularRegion = region as? CLCircularRegion, circularRegion.identifier == zoneId {
+                            locationManager.stopMonitoring(for: circularRegion)
+                            result(true)  // Return a Boolean indicating the operation was successful
+                            return
+                        }
+                    }
+                }
+            result(false) // Return false if the region with the specified identifier wasn't found
         default:
             result(FlutterMethodNotImplemented)
         }
